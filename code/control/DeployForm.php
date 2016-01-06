@@ -120,6 +120,16 @@ class DeployForm extends Form {
 				$validator = new DeployForm_PipelineValidator();
 			}
 
+			$fieldList = new FieldList(array(
+				HeaderField::create('Label1', '1. Choose a commit to deploy', 4),
+				$field,
+				HeaderField::create('Label2', '2. Select deployment options', 4),
+				CheckboxField::create(
+					'SkipSnapshot',
+					'Skip pre-deployment snapshot - existing database will be used in case of rollback.'
+				)
+			));
+
 			// Generate actions allowed for this user
 			$actions = new FieldList(
 				FormAction::create('startPipeline', "Begin the release process on " . $environment->Name)
@@ -159,8 +169,10 @@ class DeployForm extends Form {
 						"return confirm('This will start a direct deployment.\\n\\nContinue?');"
 					)
 			);
+
+			$fieldList = new FieldList($field);
 		}
-		parent::__construct($controller, $name, new FieldList($field), $actions, $validator);
+		parent::__construct($controller, $name, $fieldList, $actions, $validator);
 	}
 
 	/**
@@ -242,6 +254,7 @@ class DeployForm extends Form {
 
 		$field = new SelectionGroup('SelectRelease', $releaseMethods);
 		$field->setValue(reset($releaseMethods)->getValue());
+		$field->addExtraClass('clearfix');
 		return $field;
 	}
 
